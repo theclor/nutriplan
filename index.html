@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="NutriPlan">
+<title>NutriPlan</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#080c0a; color:#e8f0e9; font-family:'Outfit',sans-serif; min-height:100vh; }
+
+/* PAGES */
+.page { display:none; min-height:100vh; }
+.page.show { display:block; }
+
+/* ONBOARDING */
+#pageSetup {
+  background: radial-gradient(ellipse at top, #0d1f10, #080c0a);
+  padding:40px 24px 60px;
+  text-align:center;
+}
+.logo-circle {
+  width:80px; height:80px; border-radius:50%;
+  background:linear-gradient(135deg,#1a3a20,#0f2a14);
+  border:2px solid #4ade80;
+  display:flex; align-items:center; justify-content:center;
+  font-size:36px; margin:0 auto 20px;
+}
+.logo-title { font-family:'Space Mono',monospace; font-size:26px; font-weight:700; color:#4ade80; margin-bottom:8px; }
+.logo-sub { font-size:14px; color:#5a7060; margin-bottom:36px; line-height:1.6; }
+.field { margin-bottom:16px; text-align:left; }
+.field label { display:block; font-size:11px; color:#5a7060; font-weight:600; margin-bottom:6px; text-transform:uppercase; letter-spacing:1px; }
+.field input {
+  width:100%; background:#151c16; border:1px solid #1e2b20;
+  border-radius:12px; padding:14px 16px; color:#e8f0e9;
+  font-family:'Outfit',sans-serif; font-size:15px;
+  -webkit-appearance:none; appearance:none;
+}
+.field input:focus { outline:none; border-color:#4ade80; }
+.start-btn {
+  display:block; width:100%; background:#4ade80; color:#080c0a;
+  border:none; border-radius:14px; padding:18px;
+  font-family:'Space Mono',monospace; font-size:16px; font-weight:700;
+  margin-top:24px; cursor:pointer;
+  -webkit-appearance:none; appearance:none;
+  text-align:center; text-decoration:none;
+}
+
+/* MAIN APP */
+#pageApp { background:#080c0a; }
+
+.app-header {
+  background:#0f1511; border-bottom:1px solid #1e2b20;
+  padding:12px 16px; display:flex; align-items:center; gap:10px;
+  position:sticky; top:0; z-index:10;
+}
+.app-av { width:34px; height:34px; border-radius:50%; background:#1c251e; border:1.5px solid #4ade80; display:flex; align-items:center; justify-content:center; font-size:16px; }
+.app-name { font-family:'Space Mono',monospace; font-size:13px; color:#4ade80; font-weight:700; flex:1; }
+.cfg-btn { background:#1c251e; border:1px solid #1e2b20; color:#5a7060; border-radius:8px; padding:5px 12px; font-size:12px; cursor:pointer; font-family:'Outfit',sans-serif; font-weight:600; }
+
+/* Dashboard */
+.dash { background:#0f1511; border-bottom:1px solid #1e2b20; padding:12px 14px; }
+.blocks { display:flex; gap:7px; overflow-x:auto; padding-bottom:4px; }
+.blocks::-webkit-scrollbar{display:none}
+.bk { background:#151c16; border:1px solid #1e2b20; border-radius:10px; padding:8px 12px; min-width:95px; flex-shrink:0; }
+.bk.warn{border-color:#fbbf24} .bk.full{border-color:#f87171}
+.bk-lbl { font-size:9px; color:#5a7060; font-family:'Space Mono',monospace; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:3px; }
+.bk-cal { font-family:'Space Mono',monospace; font-size:13px; font-weight:700; }
+.bk-p { font-size:10px; font-weight:600; margin-top:2px; }
+.bk-p.ok{color:#4ade80}.bk-p.w{color:#fbbf24}.bk-p.ov{color:#f87171}
+.bk-bar { height:3px; background:#1e2b20; border-radius:10px; margin-top:5px; overflow:hidden; }
+.bk-fill { height:100%; background:#4ade80; border-radius:10px; transition:width .5s; }
+.bk-fill.w{background:#fbbf24}.bk-fill.f{background:#f87171}
+
+.day-stats { display:flex; margin-top:10px; padding-top:10px; border-top:1px solid #1e2b20; }
+.ds { flex:1; text-align:center; border-right:1px solid #1e2b20; }
+.ds:last-child{border:none}
+.ds-v { font-family:'Space Mono',monospace; font-size:12px; font-weight:700; }
+.ds-l { font-size:9px; color:#5a7060; text-transform:uppercase; }
+
+.health { display:flex; align-items:center; gap:8px; margin-top:8px; padding:6px 10px; background:#1c251e; border-radius:8px; }
+.h-lbl { font-size:11px; color:#5a7060; font-weight:600; }
+.h-track { flex:1; height:5px; background:#1e2b20; border-radius:10px; overflow:hidden; }
+.h-fill { height:100%; border-radius:10px; background:#4ade80; transition:width .5s; }
+.h-pct { font-family:'Space Mono',monospace; font-size:11px; font-weight:700; color:#4ade80; min-width:35px; text-align:right; }
+
+/* Chat */
+.chat { padding:14px; display:flex; flex-direction:column; gap:10px; padding-bottom:180px; }
+
+.msg { display:flex; gap:8px; }
+.msg.u { flex-direction:row-reverse; }
+.mav { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0; margin-top:2px; }
+.msg.ai .mav { background:#1c251e; border:1px solid #1e2b20; }
+.msg.u .mav { background:#4ade80; font-size:11px; color:#080c0a; font-weight:800; }
+.mb { max-width:calc(100% - 44px); padding:10px 13px; border-radius:14px; font-size:14px; line-height:1.6; }
+.msg.ai .mb { background:#0f1511; border:1px solid #1e2b20; border-top-left-radius:4px; }
+.msg.u .mb { background:#1c251e; border:1px solid rgba(74,222,128,.2); border-top-right-radius:4px; color:#86efac; }
+
+.fcard { background:#1c251e; border:1px solid #1e2b20; border-radius:10px; padding:10px 12px; margin-top:8px; }
+.fcard-head { display:flex; justify-content:space-between; align-items:flex-start; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
+.fcard-name { font-family:'Space Mono',monospace; font-size:11px; color:#4ade80; font-weight:700; }
+.fbadges { display:flex; gap:5px; flex-wrap:wrap; }
+.fb { font-size:10px; padding:2px 7px; border-radius:20px; font-weight:700; font-family:'Space Mono',monospace; }
+.fb.b1{background:rgba(74,222,128,.15);color:#4ade80}
+.fb.b2{background:rgba(96,165,250,.15);color:#60a5fa}
+.fb.b3{background:rgba(167,139,250,.15);color:#a78bfa}
+.fb.bx{background:rgba(251,191,36,.15);color:#fbbf24}
+.fb.hi{background:rgba(74,222,128,.15);color:#4ade80}
+.fb.mi{background:rgba(251,191,36,.15);color:#fbbf24}
+.fb.lo{background:rgba(248,113,113,.15);color:#f87171}
+.fgrid { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin-bottom:6px; }
+.fst { background:#151c16; border-radius:7px; padding:5px 7px; text-align:center; }
+.fst-v { font-family:'Space Mono',monospace; font-size:12px; font-weight:700; }
+.fst-l { font-size:9px; color:#5a7060; text-transform:uppercase; }
+.fmus { font-size:11px; padding:4px 8px; border-radius:7px; margin-bottom:4px; }
+.fmus.ok{background:rgba(74,222,128,.1);color:#4ade80;border:1px solid rgba(74,222,128,.2)}
+.fmus.no{background:rgba(251,191,36,.1);color:#fbbf24;border:1px solid rgba(251,191,36,.2)}
+.falert { font-size:11px; padding:5px 8px; border-radius:7px; margin-top:4px; background:rgba(248,113,113,.08); border:1px solid rgba(248,113,113,.2); color:#f87171; }
+
+.typing { display:flex; gap:4px; padding:10px 13px; background:#0f1511; border:1px solid #1e2b20; border-radius:14px; border-top-left-radius:4px; width:fit-content; }
+.td { width:5px; height:5px; background:#5a7060; border-radius:50%; animation:td 1.2s infinite; }
+.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+
+/* Input bar */
+.input-wrap {
+  position:fixed; bottom:0; left:0; right:0;
+  background:#0f1511; border-top:1px solid #1e2b20;
+  padding:10px 12px 24px;
+}
+.chips { display:flex; gap:6px; margin-bottom:8px; overflow-x:auto; }
+.chips::-webkit-scrollbar{display:none}
+.chip { background:#1c251e; border:1px solid #1e2b20; border-radius:20px; padding:5px 12px; font-size:11px; color:#5a7060; cursor:pointer; white-space:nowrap; font-weight:600; flex-shrink:0; }
+.irow { display:flex; gap:8px; align-items:flex-end; }
+.ci {
+  flex:1; background:#151c16; border:1px solid #1e2b20; border-radius:12px;
+  padding:10px 13px; color:#e8f0e9; font-family:'Outfit',sans-serif; font-size:14px;
+  resize:none; outline:none; max-height:90px; line-height:1.5;
+  -webkit-appearance:none;
+}
+.ibtn {
+  background:#1c251e; border:1px solid #1e2b20; color:#5a7060;
+  border-radius:11px; width:40px; height:40px;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; font-size:15px; flex-shrink:0;
+  -webkit-appearance:none;
+}
+.ibtn.send { background:#4ade80; color:#080c0a; border-color:#4ade80; }
+
+/* Settings */
+.overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:50; align-items:flex-end; }
+.overlay.show { display:flex; }
+.settings { background:#0f1511; border-top:1px solid #1e2b20; border-radius:20px 20px 0 0; padding:20px 20px 50px; width:100%; }
+.settings h3 { font-family:'Space Mono',monospace; font-size:12px; color:#4ade80; margin-bottom:16px; }
+.sf { margin-bottom:12px; }
+.sf label { display:block; font-size:11px; color:#5a7060; font-weight:600; margin-bottom:5px; text-transform:uppercase; }
+.si { width:100%; background:#080c0a; border:1px solid #1e2b20; border-radius:10px; padding:10px 13px; color:#e8f0e9; font-family:'Outfit',sans-serif; font-size:13px; outline:none; -webkit-appearance:none; }
+.sbtn { background:#4ade80; color:#080c0a; border:none; border-radius:10px; padding:12px; font-family:'Space Mono',monospace; font-size:13px; font-weight:700; cursor:pointer; width:100%; margin-top:8px; }
+.sdng { background:transparent; border:1px solid #f87171; color:#f87171; border-radius:10px; padding:10px; font-size:13px; cursor:pointer; width:100%; margin-top:8px; font-family:'Outfit',sans-serif; }
+
+.toast { position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-80px); background:#1c251e; border:1px solid #4ade80; color:#4ade80; padding:9px 18px; border-radius:50px; font-size:12px; font-weight:700; transition:transform .3s; z-index:200; white-space:nowrap; font-family:'Space Mono',monospace; }
+.toast.show { transform:translateX(-50%) translateY(0); }
+.toast.err { border-color:#f87171; color:#f87171; }
+
+#imgInput{display:none}
+.img-prev-wrap { position:relative; margin-bottom:8px; display:none; }
+.img-prev { width:100%; max-height:160px; object-fit:cover; border-radius:10px; border:1px solid #1e2b20; display:block; }
+.img-rm { position:absolute; top:6px; right:6px; background:rgba(0,0,0,.7); border:none; color:white; border-radius:50%; width:26px; height:26px; cursor:pointer; font-size:12px; }
+</style>
+</head>
+<body>
+
+<!-- SETUP PAGE -->
+<div id="pageSetup" class="page show">
+  <div class="logo-circle">🌿</div>
+  <div class="logo-title">NUTRIPLAN</div>
+  <div class="logo-sub">Tu asistente personal de nutrición.<br>Te conozco, te cuido, te acompaño.</div>
+
+  <div class="field">
+    <label>¿Cómo te llamas?</label>
+    <input type="text" id="inName" placeholder="Tu nombre..." autocomplete="off">
+  </div>
+  <div class="field">
+    <label>Gemini API Key</label>
+    <input type="password" id="inKey" placeholder="AIza..." autocomplete="off">
+  </div>
+  <div class="field">
+    <label>Apps Script URL (Google Sheets)</label>
+    <input type="url" id="inScript" placeholder="https://script.google.com/...">
+  </div>
+
+  <div id="setupError" style="color:#f87171;font-size:13px;margin-top:12px;display:none"></div>
+
+  <div class="start-btn" id="startBtn">Comenzar mi plan →</div>
+</div>
+
+<!-- APP PAGE -->
+<div id="pageApp" class="page">
+  <div class="app-header">
+    <div class="app-av">🌿</div>
+    <div class="app-name" id="appName">NutriPlan</div>
+    <div class="cfg-btn" id="cfgBtn">⚙ Config</div>
+  </div>
+
+  <div class="dash">
+    <div class="blocks">
+      <div class="bk" id="bk-b1"><div class="bk-lbl">B1 ≤9am</div><div class="bk-cal"><span id="b1c">0</span><span style="font-size:9px;color:#5a7060">/550</span></div><div class="bk-p ok" id="b1p">P:0/50g</div><div class="bk-bar"><div class="bk-fill" id="b1b" style="width:0%"></div></div></div>
+      <div class="bk" id="bk-b2"><div class="bk-lbl">B2 12-1:30</div><div class="bk-cal"><span id="b2c">0</span><span style="font-size:9px;color:#5a7060">/600</span></div><div class="bk-p ok" id="b2p">P:0/50g</div><div class="bk-bar"><div class="bk-fill" id="b2b" style="width:0%"></div></div></div>
+      <div class="bk" id="bk-b3"><div class="bk-lbl">B3 5-8pm</div><div class="bk-cal"><span id="b3c">0</span><span style="font-size:9px;color:#5a7060">/700</span></div><div class="bk-p ok" id="b3p">P:0/50g</div><div class="bk-bar"><div class="bk-fill" id="b3b" style="width:0%"></div></div></div>
+      <div class="bk" id="bk-bx"><div class="bk-lbl">Extra</div><div class="bk-cal"><span id="bxc">0</span><span style="font-size:9px;color:#5a7060">/100</span></div><div class="bk-p ok" id="bxp">P:0g</div><div class="bk-bar"><div class="bk-fill" id="bxb" style="width:0%"></div></div></div>
+    </div>
+    <div class="day-stats">
+      <div class="ds"><div class="ds-v" id="sc">0</div><div class="ds-l">kcal/1950</div></div>
+      <div class="ds"><div class="ds-v" id="sp">0g</div><div class="ds-l">Proteína</div></div>
+      <div class="ds"><div class="ds-v" id="sf">0g</div><div class="ds-l">Grasa/60g</div></div>
+      <div class="ds"><div class="ds-v" id="sh">—</div><div class="ds-l">Salud</div></div>
+    </div>
+    <div class="health">
+      <span class="h-lbl">🌿 Salud</span>
+      <div class="h-track"><div class="h-fill" id="hf" style="width:0%"></div></div>
+      <span class="h-pct" id="hp">0%</span>
+    </div>
+  </div>
+
+  <div class="chat" id="chat"></div>
+
+  <div class="input-wrap">
+    <div class="chips" id="chips">
+      <div class="chip" id="c1">🕐 Mi bloque</div>
+      <div class="chip" id="c2">📊 Resumen</div>
+      <div class="chip" id="c3">🔢 Restante</div>
+      <div class="chip" id="c4">💡 Consejos</div>
+      <div class="chip" id="c5">💪 Proteína</div>
+      <div class="chip" id="c6">📅 Semana</div>
+    </div>
+    <div class="img-prev-wrap" id="imgWrap">
+      <img id="imgPrev" class="img-prev" src="" alt="">
+      <button class="img-rm" id="imgRm">✕</button>
+    </div>
+    <div class="irow">
+      <div class="ibtn" id="camBtn">📸</div>
+      <textarea class="ci" id="ci" placeholder="Escríbeme o envía una foto..." rows="1"></textarea>
+      <div class="ibtn" id="micBtn">🎤</div>
+      <div class="ibtn send" id="sendBtn">➤</div>
+    </div>
+    <input type="file" id="imgInput" accept="image/*" capture="environment">
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div class="overlay" id="overlay">
+  <div class="settings">
+    <h3>⚙ CONFIGURACIÓN</h3>
+    <div class="sf"><label>Tu nombre</label><input class="si" id="sn" type="text"></div>
+    <div class="sf"><label>Gemini API Key</label><input class="si" id="sk" type="password"></div>
+    <div class="sf"><label>Apps Script URL</label><input class="si" id="ss" type="url"></div>
+    <button class="sbtn" id="saveCfg">Guardar</button>
+    <button class="sdng" id="resetDay">🔄 Reiniciar día</button>
+    <button class="sdng" id="resetAll">⚠️ Borrar todo</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const TODAY = new Date().toISOString().split('T')[0];
+const BLOCKS = { b1:{lbl:'Bloque 1',mc:550,mp:50}, b2:{lbl:'Bloque 2',mc:600,mp:50}, b3:{lbl:'Bloque 3',mc:700,mp:50}, bx:{lbl:'Extra',mc:100,mp:999} };
+
+let CFG = { name: localStorage.getItem('un')||'', key: localStorage.getItem('gk')||'', script: localStorage.getItem('su')||'' };
+let state = JSON.parse(localStorage.getItem('st_'+TODAY)||JSON.stringify({ blocks:{b1:{c:0,p:0,f:0,fat:0,fi:0,e:[]},b2:{c:0,p:0,f:0,fat:0,fi:0,e:[]},b3:{c:0,p:0,f:0,fat:0,fi:0,e:[]},bx:{c:0,p:0,f:0,fat:0,fi:0,e:[]}}, fat:0, hs:0, hp:0, lt:{b1:null,b2:null,b3:null,bx:null} }));
+let mem = JSON.parse(localStorage.getItem('mem')||JSON.stringify({ obs:[], wl:[] }));
+let hist = [];
+let imgB64 = null;
+let tc = 0;
+let recog = null;
+
+// ---- SETUP ----
+function init() {
+  if (CFG.name && CFG.key) { showApp(); return; }
+  if (CFG.name) document.getElementById('inName').value = CFG.name;
+  if (CFG.key) document.getElementById('inKey').value = CFG.key;
+  if (CFG.script) document.getElementById('inScript').value = CFG.script;
+  bindSetup();
+}
+
+function bindSetup() {
+  const btn = document.getElementById('startBtn');
+  const go = function() {
+    const n = document.getElementById('inName').value.trim();
+    const k = document.getElementById('inKey').value.trim();
+    const s = document.getElementById('inScript').value.trim();
+    const err = document.getElementById('setupError');
+    if (!n) { err.textContent='Escribe tu nombre'; err.style.display='block'; return; }
+    if (!k) { err.textContent='Necesitas tu API Key de Gemini'; err.style.display='block'; return; }
+    err.style.display='none';
+    CFG = { name:n, key:k, script:s };
+    localStorage.setItem('un',n); localStorage.setItem('gk',k); localStorage.setItem('su',s);
+    showApp();
+  };
+  btn.addEventListener('click', go);
+  btn.addEventListener('touchend', function(e){ e.preventDefault(); go(); });
+}
+
+function showApp() {
+  document.getElementById('pageSetup').classList.remove('show');
+  document.getElementById('pageApp').classList.add('show');
+  document.getElementById('appName').textContent = 'Hola, '+CFG.name+' 👋';
+  updateDash();
+  bindApp();
+  welcome();
+  setInterval(checkReminders, 60000);
+  checkReminders();
+}
+
+function bindApp() {
+  // Send
+  const send = function() { sendMsg(); };
+  document.getElementById('sendBtn').addEventListener('click', send);
+  document.getElementById('sendBtn').addEventListener('touchend', function(e){ e.preventDefault(); send(); });
+
+  // Chips
+  const chipTxts = ['¿Qué bloque es ahora y cuánto me queda?','Resumen completo del día','¿Cuántas calorías y grasa me quedan?','Dame consejos para mis próximas comidas','¿Cómo voy con mi proteína muscular?','Resumen semanal y en qué puedo mejorar'];
+  document.querySelectorAll('.chip').forEach((c,i) => {
+    c.addEventListener('click', function(){ document.getElementById('ci').value=chipTxts[i]; sendMsg(); });
+  });
+
+  // Camera
+  document.getElementById('camBtn').addEventListener('click', function(){ document.getElementById('imgInput').click(); });
+  document.getElementById('imgInput').addEventListener('change', handleImg);
+  document.getElementById('imgRm').addEventListener('click', clearImg);
+
+  // Mic
+  document.getElementById('micBtn').addEventListener('click', toggleMic);
+
+  // Textarea
+  document.getElementById('ci').addEventListener('keydown', function(e){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();} });
+  document.getElementById('ci').addEventListener('input', function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,90)+'px'; });
+
+  // Config
+  document.getElementById('cfgBtn').addEventListener('click', openCfg);
+  document.getElementById('overlay').addEventListener('click', function(e){ if(e.target===this) closeCfg(); });
+  document.getElementById('saveCfg').addEventListener('click', saveCfg);
+  document.getElementById('saveCfg').addEventListener('touchend', function(e){ e.preventDefault(); saveCfg(); });
+  document.getElementById('resetDay').addEventListener('click', function(){ if(confirm('¿Reiniciar día?')){ localStorage.removeItem('st_'+TODAY); location.reload(); } });
+  document.getElementById('resetAll').addEventListener('click', function(){ if(confirm('¿Borrar todo?')){ localStorage.clear(); location.reload(); } });
+}
+
+async function welcome() {
+  const h = new Date().getHours();
+  const g = h<12?'Buenos días':h<18?'Buenas tardes':'Buenas noches';
+  const t = addTyping();
+  try {
+    const r = await gemini(`El usuario ${CFG.name} acaba de abrir la app. Salúdalo con "${g}" de forma cálida y personal. Menciona la hora (${h}:${String(new Date().getMinutes()).padStart(2,'0')}) y el bloque actual (${getBlock()}). Eres su compañero de nutrición Luna. Máximo 2 oraciones. Responde en español.`, true);
+    removeTyping(t); addAI(r);
+  } catch(e) { removeTyping(t); addAI(`${g}, ${CFG.name}! 🌿 Listo para acompañarte. ${getBlock()} — ¿qué vas a comer?`); }
+}
+
+function getBlock() {
+  const h=new Date().getHours(), m=new Date().getMinutes(), t=h+m/60;
+  if(t<9) return 'Bloque 1 (termina antes 9am)';
+  if(t<13.5) return 'Bloque 2 (12-1:30pm)';
+  if(t<20) return 'Bloque 3 (5-8pm)';
+  return 'Extra o fuera de ventana';
+}
+
+async function sendMsg() {
+  const ci = document.getElementById('ci');
+  const txt = ci.value.trim();
+  if (!txt && !imgB64) return;
+  if (!CFG.key) { toast('Configura tu API Key',true); return; }
+
+  addUser(txt || '📸 Foto de comida');
+  ci.value=''; ci.style.height='auto';
+  document.getElementById('sendBtn').style.opacity='0.5';
+
+  const t = addTyping();
+  try {
+    const r = await geminiChat(txt, imgB64);
+    removeTyping(t); clearImg();
+    const m = r.match(/\[\[F\]\]([\s\S]*?)\[\[\/F\]\]/);
+    if(m){ try{ const e=JSON.parse(m[1].trim()); addAI(r.replace(/\[\[F\]\][\s\S]*?\[\[\/F\]\]/,'').trim(),e); await processEntry(e); }catch(er){addAI(r.replace(/\[\[F\]\][\s\S]*?\[\[\/F\]\]/,'').trim());} }
+    else addAI(r);
+  } catch(e) { removeTyping(t); addAI('Tuve un problema. ¿Lo intentamos de nuevo? 🙏'); }
+  document.getElementById('sendBtn').style.opacity='1';
+}
+
+async function gemini(prompt, simple) {
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CFG.key}`,
+    { method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ contents:[{role:'user',parts:[{text:prompt}]}], generationConfig:{maxOutputTokens:500,temperature:.7} }) });
+  const d = await res.json();
+  if(d.error) throw new Error(d.error.message);
+  return d.candidates?.[0]?.content?.parts?.[0]?.text||'';
+}
+
+async function geminiChat(txt, img) {
+  const sys = buildSys();
+  const parts = [];
+  if(img) parts.push({inlineData:{mimeType:'image/jpeg',data:img}});
+  if(txt) parts.push({text:txt});
+  if(!txt&&img) parts.push({text:'Analiza esta comida.'});
+  hist.push({role:'user',parts});
+  if(hist.length>20) hist=hist.slice(-16);
+
+  const contents = [
+    {role:'user',parts:[{text:sys}]},
+    {role:'model',parts:[{text:'Entendido. Soy Luna, asistente de nutrición de '+CFG.name+'.'}]},
+    ...hist
+  ];
+  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${CFG.key}`,
+    { method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ contents, generationConfig:{maxOutputTokens:900,temperature:.4} }) });
+  const d = await res.json();
+  if(d.error) throw new Error(d.error.message);
+  const r = d.candidates?.[0]?.content?.parts?.[0]?.text||'No pude procesar eso.';
+  hist.push({role:'model',parts:[{text:r}]});
+  return r;
+}
+
+function buildSys() {
+  const now = new Date();
+  const ts = now.getHours()+':'+String(now.getMinutes()).padStart(2,'0');
+  const st = state;
+  const tc = Object.values(st.blocks).reduce((a,b)=>a+b.c,0);
+  const tp = Object.values(st.blocks).reduce((a,b)=>a+b.p,0);
+  function ms(k){ return !st.lt[k]?999:Math.round((Date.now()-st.lt[k])/60000); }
+  return `Eres LUNA, asistente personal de nutrición de ${CFG.name}. Eres como una amiga cercana — cálida, directa, motivadora, nunca robótica.
+
+MEMORIA: ${JSON.stringify(mem.obs.slice(-5))}
+
+HOY (${TODAY} ${ts}):
+Calorías: ${Math.round(tc)}/1950 (restante: ${1950-Math.round(tc)})
+Grasa: ${Math.round(st.fat)}/60g (restante: ${Math.max(0,60-Math.round(st.fat))}g)
+Proteína: ${Math.round(tp)}g | Salud: ${st.hs}%
+B1: ${Math.round(st.blocks.b1.c)}/550kcal ${Math.round(st.blocks.b1.p)}/50g prot hace ${ms('b1')}min
+B2: ${Math.round(st.blocks.b2.c)}/600kcal ${Math.round(st.blocks.b2.p)}/50g prot hace ${ms('b2')}min
+B3: ${Math.round(st.blocks.b3.c)}/700kcal ${Math.round(st.blocks.b3.p)}/50g prot hace ${ms('b3')}min
+Extra: ${Math.round(st.blocks.bx.c)}/100kcal
+
+REGLAS: 50g proteína/bloque para músculo (necesita 3h entre bloques) | grasa máx 60g/día
+HORARIO: 4am despertar | 6-6:50am sesión operativa | 7am ejercicio | B1≤9am | B2 12-1:30pm | 2pm ejercicio | B3 5-8pm | 9pm dormir
+SALUD: verduras/carnes magras/frutas +15-20 | lácteos/legumbres +5-10 | procesados -10 | ultra-procesados -20 | alcohol -30
+
+Si detectas comida, incluye al final:
+[[F]]{"alimento":"nombre","bloque":"b1|b2|b3|bx","gramos":0,"calorias":0,"proteina":0,"carbohidratos":0,"grasa":0,"fibra":0,"sodio":0,"puntos_salud":0,"nivel_alimento":"excelente|bueno|regular|malo","proteina_muscular":0,"alertas":[]}[[/F]]
+
+Responde siempre en español. Sé humana, no robótica.`;
+}
+
+async function processEntry(e) {
+  const b = e.bloque;
+  if(!state.blocks[b]) return;
+  state.blocks[b].c  += e.calorias||0;
+  state.blocks[b].p  += e.proteina||0;
+  state.blocks[b].f  += e.carbohidratos||0;
+  state.blocks[b].fat+= e.grasa||0;
+  state.blocks[b].fi += e.fibra||0;
+  state.blocks[b].e.push({...e,t:new Date().toISOString()});
+  state.lt[b] = Date.now();
+  state.fat += e.grasa||0;
+  state.hp = (state.hp||0)+(e.puntos_salud||0);
+  state.hs = Math.max(0,Math.min(100,50+state.hp));
+  localStorage.setItem('st_'+TODAY, JSON.stringify(state));
+  mem.obs.push(TODAY+': '+e.alimento+' ('+e.nivel_alimento+')');
+  if(mem.obs.length>30) mem.obs=mem.obs.slice(-30);
+  mem.wl.push({d:TODAY,a:e.alimento,c:e.calorias,n:e.nivel_alimento});
+  if(mem.wl.length>100) mem.wl=mem.wl.slice(-100);
+  localStorage.setItem('mem',JSON.stringify(mem));
+  updateDash();
+  if(CFG.script){
+    try{ await fetch(CFG.script,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({fecha:TODAY,hora:new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'}),bloque:BLOCKS[b]?.lbl,alimento:e.alimento,gramos:e.gramos,calorias:e.calorias,proteina:e.proteina,proteina_muscular:e.proteina_muscular,carbohidratos:e.carbohidratos,grasa:e.grasa,fibra:e.fibra,sodio:e.sodio,nivel_alimento:e.nivel_alimento,puntos_salud:e.puntos_salud,nivel_salud_dia:state.hs})}); toast('✓ Guardado en Sheets'); }catch(er){ toast('⚠ Error Sheets',true); }
+  }
+}
+
+function updateDash() {
+  const cm = {b1:'1',b2:'2',b3:'3',bx:'x'};
+  ['b1','b2','b3','bx'].forEach(b => {
+    const mc=BLOCKS[b].mc, c=state.blocks[b].c, p=state.blocks[b].p, mp=BLOCKS[b].mp;
+    const pct=Math.min(100,(c/mc)*100), n=cm[b];
+    const ce=document.getElementById('b'+n+'c'), pe=document.getElementById('b'+n+'p');
+    const be=document.getElementById('b'+n+'b'), ke=document.getElementById('bk-'+b);
+    if(ce) ce.textContent=Math.round(c);
+    if(pe){ pe.textContent=b==='bx'?`P:${Math.round(p)}g`:`P:${Math.round(p)}/${mp}g`; pe.className='bk-p '+(p>=mp?'ov':p>=mp*.8?'w':'ok'); }
+    if(be){ be.style.width=pct+'%'; be.className='bk-fill '+(pct>=100?'f':pct>=80?'w':''); }
+    if(ke){ ke.className='bk '+(pct>=100?'full':pct>=80?'warn':''); }
+  });
+  const tc=Object.values(state.blocks).reduce((a,b)=>a+b.c,0);
+  const tp=Object.values(state.blocks).reduce((a,b)=>a+b.p,0);
+  document.getElementById('sc').textContent=Math.round(tc);
+  document.getElementById('sp').textContent=Math.round(tp)+'g';
+  document.getElementById('sf').textContent=Math.round(state.fat)+'g';
+  const hs=state.hs||0, hc=hs>=70?'#4ade80':hs>=40?'#fbbf24':'#f87171';
+  document.getElementById('sh').textContent=hs+'%';
+  document.getElementById('hf').style.width=hs+'%'; document.getElementById('hf').style.background=hc;
+  document.getElementById('hp').textContent=hs+'%'; document.getElementById('hp').style.color=hc;
+}
+
+// Messages
+function addUser(t) {
+  const d=document.createElement('div'); d.className='msg u';
+  const init=CFG.name?CFG.name[0].toUpperCase():'T';
+  d.innerHTML=`<div class="mav">${init}</div><div class="mb">${esc(t)}</div>`;
+  document.getElementById('chat').appendChild(d); scroll();
+}
+
+function addAI(txt, food) {
+  const d=document.createElement('div'); d.className='msg ai';
+  let card='';
+  if(food){
+    const b=food.bloque, bc={b1:'b1',b2:'b2',b3:'b3',bx:'bx'}[b]||'b1';
+    const lc={excelente:'hi',bueno:'hi',regular:'mi',malo:'lo'}[food.nivel_alimento]||'mi';
+    const ll={excelente:'⭐ Excelente',bueno:'✅ Bueno',regular:'⚠️ Regular',malo:'❌ Malo'}[food.nivel_alimento]||'';
+    const alerts=(food.alertas||[]).map(a=>`<div class="falert">⚠️ ${a}</div>`).join('');
+    const mus=food.proteina_muscular>0?`<div class="fmus ok">💪 ${food.proteina_muscular}g para músculo</div>`:`<div class="fmus no">⏰ Sin ventana muscular activa</div>`;
+    card=`<div class="fcard"><div class="fcard-head"><span class="fcard-name">${esc(food.alimento)} · ${food.gramos}g</span><div class="fbadges"><span class="fb ${bc}">${BLOCKS[b]?.lbl||b}</span><span class="fb ${lc}">${ll}</span></div></div><div class="fgrid"><div class="fst"><div class="fst-v">${food.calorias}</div><div class="fst-l">kcal</div></div><div class="fst"><div class="fst-v">${food.proteina}g</div><div class="fst-l">Prot</div></div><div class="fst"><div class="fst-v">${food.carbohidratos}g</div><div class="fst-l">Carb</div></div><div class="fst"><div class="fst-v">${food.grasa}g</div><div class="fst-l">Grasa</div></div><div class="fst"><div class="fst-v">${food.fibra}g</div><div class="fst-l">Fibra</div></div><div class="fst"><div class="fst-v">${food.puntos_salud>0?'+':''}${food.puntos_salud}</div><div class="fst-l">Salud</div></div></div>${mus}${alerts}</div>`;
+  }
+  const fmt=esc(txt).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/\n/g,'<br>');
+  d.innerHTML=`<div class="mav">🌿</div><div class="mb">${fmt}${card}</div>`;
+  document.getElementById('chat').appendChild(d); scroll();
+}
+
+function addTyping(){
+  const id='t'+(++tc), d=document.createElement('div'); d.className='msg ai'; d.id=id;
+  d.innerHTML=`<div class="mav">🌿</div><div class="typing"><div class="td"></div><div class="td"></div><div class="td"></div></div>`;
+  document.getElementById('chat').appendChild(d); scroll(); return id;
+}
+function removeTyping(id){ const e=document.getElementById(id); if(e) e.remove(); }
+function scroll(){ window.scrollTo(0,document.body.scrollHeight); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Image
+function handleImg(e){ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=ev=>{ imgB64=ev.target.result.split(',')[1]; document.getElementById('imgPrev').src=ev.target.result; document.getElementById('imgWrap').style.display='block'; }; r.readAsDataURL(f); }
+function clearImg(){ imgB64=null; document.getElementById('imgInput').value=''; document.getElementById('imgWrap').style.display='none'; }
+
+// Voice
+function toggleMic(){
+  if(!('webkitSpeechRecognition'in window)&&!('SpeechRecognition'in window)){ toast('Voz no disponible',true); return; }
+  if(recog){ recog.stop(); recog=null; document.getElementById('micBtn').textContent='🎤'; return; }
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  recog=new SR(); recog.lang='es-ES'; recog.continuous=false; recog.interimResults=false;
+  recog.onresult=e=>{ document.getElementById('ci').value=e.results[0][0].transcript; };
+  recog.onend=()=>{ recog=null; document.getElementById('micBtn').textContent='🎤'; };
+  recog.start(); document.getElementById('micBtn').textContent='⏹';
+}
+
+// Config
+function openCfg(){ document.getElementById('sn').value=CFG.name; document.getElementById('sk').value=CFG.key; document.getElementById('ss').value=CFG.script; document.getElementById('overlay').classList.add('show'); }
+function closeCfg(){ document.getElementById('overlay').classList.remove('show'); }
+function saveCfg(){ CFG.name=document.getElementById('sn').value.trim()||CFG.name; CFG.key=document.getElementById('sk').value.trim()||CFG.key; CFG.script=document.getElementById('ss').value.trim(); localStorage.setItem('un',CFG.name); localStorage.setItem('gk',CFG.key); localStorage.setItem('su',CFG.script); document.getElementById('appName').textContent='Hola, '+CFG.name+' 👋'; closeCfg(); toast('✓ Guardado'); }
+
+// Reminders
+function checkReminders(){
+  const h=new Date().getHours(), m=new Date().getMinutes();
+  const k=`r_${TODAY}_${h}_${m}`; if(localStorage.getItem(k)) return;
+  const msgs={'3:55':'⏰ 4am — hora de despertar!','5:55':'🧠 6am — Sesión operativa.','6:55':'🏋️ 7am — Ejercicio.','8:30':'🍽️ Termina B1 antes 9am.','12:0':'🕛 12pm — Abre B2.','13:25':'⚠️ Cierra B2 en 5 min.','14:0':'🏃 2pm — Ejercicio.','17:0':'🌆 5pm — Abre B3.','19:45':'⚠️ Cierra B3 pronto.','20:45':'🌙 Prepárate para dormir 9pm.'};
+  const key2=`${h}:${m}`; if(msgs[key2]){ localStorage.setItem(k,'1'); addAI('🔔 '+msgs[key2]); }
+}
+
+function toast(msg,err=false){
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.className='toast'+(err?' err':'')+' show';
+  setTimeout(()=>t.className='toast'+(err?' err':''),3000);
+}
+
+init();
+</script>
+</body>
+</html>
